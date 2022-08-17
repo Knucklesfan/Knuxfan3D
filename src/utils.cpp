@@ -15,6 +15,31 @@ std::vector<SDL_Color> graphics::genTexture(std::string path) {
     SDL_FreeSurface(temp);
     return texture;
 }
+SDL_Texture* graphics::getSDLTexture(std::string path, SDL_Renderer* renderer) {
+        SDL_Surface* surf = SDL_LoadBMP(path.c_str());
+        SDL_Texture* ret = SDL_CreateTextureFromSurface(renderer, surf);
+        SDL_FreeSurface(surf);
+        return ret;
+}
+void graphics::drawTexture(SDL_Renderer* renderer, SDL_Texture* texture, int x, int y, bool center, int srcx, int srcy, int srcw, int srch, int scalex, int scaley) {
+    SDL_Rect sprite;
+    SDL_Rect srcrect = {srcx, srcy, srcw, srch};
+    if(SDL_QueryTexture(texture, NULL, NULL, &sprite.w, &sprite.h) < 0) {
+        printf("TEXTURE ISSUES!!! \n");
+    };
+    sprite.w = srcw;
+    sprite.h = srch;
+    if (center) {
+        sprite.x = x - srcw / 2;
+        sprite.y = y - srch / 2;
+    }
+    else {
+        sprite.x = x;
+        sprite.y = y;
+    }
+    SDL_RenderCopy(renderer, texture, &srcrect, &sprite);
+}
+
 std::vector<SDL_Color> graphics::genTexture(std::string path,int w, int h) {
     SDL_Surface* temp = SDL_LoadBMP(path.c_str());
     std::vector<SDL_Color> texture;
@@ -63,3 +88,9 @@ switch (bpp)
             return 0;       /* shouldn't happen, but avoids warnings */
       }
 }
+double graphics::lerp(double a, double b, double t)    {
+        if (t <= 0.5)
+            return a+(b-a)*t;
+        else
+            return b-(b-a)*(1.0-t);
+    }

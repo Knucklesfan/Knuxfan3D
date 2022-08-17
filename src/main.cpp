@@ -4,20 +4,21 @@
 #include "player.h"
 #include "utils.h"
 #include "sprite.h"
+#include "SDL_FontCache.h"
 using namespace std;
 
 
 int worldMap[MAPW][MAPH]= //TODO: actually make this load from a file. Should be ez
 {
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,1,1,1,1,1,9,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,0,0,0,0,0,9,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,9,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,9,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,9,0,11,0,0,0,0,0,0,9,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,9,10,0,10,9,12,9,9,9,0,0,0,0,0,0,0,0,1},
   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,2,2,2,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,3,0,0,0,3,0,0,0,1},
-  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,2,2,0,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -41,13 +42,13 @@ int floormap[MAPW][MAPH]= //TODO: actually make this load from a file. Should be
   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-  {0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0},
-  {0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0},
-  {0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0},
-  {0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0},
-  {0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0},
-  {0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0},
-  {0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0},
+  {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+  {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+  {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+  {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+  {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+  {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+  {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -89,15 +90,29 @@ int ceilingmap[MAPW][MAPH]= //TODO: actually make this load from a file. Should 
   {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}
   };
 
-Sprite sprite[SPRITECOUNT] = {
-	{19,6,5}
+std::vector<Sprite> sprite = {
+	{8,8,ENEMY,5},
+	{8,10,DECORATION,5},
+	{0,0,UNDEFINED,5},
+	{0,0,UNDEFINED,5},
+	{0,0,UNDEFINED,5},
+	{0,0,UNDEFINED,5},
+	{0,0,UNDEFINED,5},
+	{0,0,UNDEFINED,5},
+	{0,0,UNDEFINED,5},
+	{0,0,UNDEFINED,5}
 };
 double zbuf[WIDTH];
 int spriteOrder[SPRITECOUNT];
 double spriteDistance[SPRITECOUNT];
 void sortSprites(int* order, double* dist, int amount);
+double gunframe = 0;
+bool fire = false;
 
 int main() {
+	int health = 100;
+	double meth = 2.01;
+	int ammo = 69;
 	double planeX = 0;
     double planeY = 0.66;
 	double time = 0; //time of current frame
@@ -129,10 +144,9 @@ int main() {
 
         return 1;
     }
-	SDL_Surface* temp = SDL_LoadBMP("./textures/hud.bmp");
-	SDL_Texture* hud = SDL_CreateTextureFromSurface(renderer,temp);
-	SDL_FreeSurface(temp);
-	std::vector<SDL_Color> textures[4];
+	SDL_Texture* hud = graphics::getSDLTexture("./textures/hud.bmp",renderer);
+	SDL_Texture* gun = graphics::getSDLTexture("./textures/gun.bmp",renderer);
+	std::vector<SDL_Color> textures[24];
 	textures[0] = graphics::genTexture("./textures/floor.bmp");
 	textures[1] = graphics::genTexture("./textures/wall.bmp");
 	textures[2] = graphics::genTexture("./textures/door.bmp");
@@ -141,17 +155,32 @@ int main() {
 	textures[5] = graphics::genTexture("./textures/waltuh.bmp");
 	textures[6] = graphics::genTexture("./textures/obama.bmp");
 	textures[7] = graphics::genTexture("./textures/sadshinji.bmp");
+	textures[8] = graphics::genTexture("./textures/polloswall.bmp");
+	textures[9] = graphics::genTexture("./textures/pollosblankwall.bmp");
+	textures[10] = graphics::genTexture("./textures/pollosdoor.bmp");
+	textures[11] = graphics::genTexture("./textures/polloslogo.bmp");
+	textures[12] = graphics::genTexture("./textures/floorbrighter.bmp");
+	textures[13] = graphics::genTexture("./textures/waltuhcar.bmp");
 
     SDL_Texture* pixels = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBX8888, SDL_TEXTUREACCESS_STREAMING || SDL_TEXTUREACCESS_TARGET, WIDTH, HEIGHT);
     SDL_Event event;
     bool quit = false;
 	player p;
+	FC_Font* font = FC_CreateFont();  
+	FC_LoadFont(font, renderer, "fonts/FreeSans.ttf", 40, FC_MakeColor(255,0,0,255), TTF_STYLE_NORMAL);  
+
     while(!quit) {
         while(SDL_PollEvent(&event)) {
             if(event.type == SDL_QUIT) {
                 quit = true;
             }
         }
+		oldTime = time;
+		time = SDL_GetTicks();
+		double frameTime = (time - oldTime) / 1000.0; //frameTime is the time this frame has taken, in seconds
+		//std::cout << (1.0 / frameTime) << "\n"; //FPS counter
+		double moveSpeed = frameTime * 5.0; //the constant value is in squares/second
+		double rotSpeed = frameTime * 3.0; //the constant value is in radians/second
 
         SDL_RenderClear(renderer);
         // renderTextures
@@ -263,6 +292,21 @@ int main() {
 					if(worldMap[mapX][mapY]) {
 						hit = 1;
 					}
+					if(fire) {
+						for(int i = 0; i < SPRITECOUNT; i++) {
+							if((int)sprite[i].x == (int)mapX 
+							&& (int)sprite[i].y == (int)mapY 
+							&& x == (WIDTH/2)
+							&& abs((int)sprite[i].x-p.x)<=10
+							&& abs((int)sprite[i].y-p.y)<=10
+							&& sprite[i].type == ENEMY
+							) {
+								sprite[i].hit();
+							}
+						}
+					}
+
+
 
 				}
 				if(side == 0) {
@@ -425,83 +469,92 @@ int main() {
 
             // draw red diagonal line
         }
-		for(int i = 0; i < SPRITECOUNT; i++) {
+		for(int i = 0; i < sprite.size(); i++) {
+			
 			spriteOrder[i] = i;
 			spriteDistance[i] = ((p.x - sprite[i].x) * (p.x - sprite[i].x) + (p.y - sprite[i].y) * (p.y - sprite[i].y));
 
 		}
-		sortSprites(spriteOrder,spriteDistance,SPRITECOUNT);
-		for(int i = 0; i < SPRITECOUNT; i++) {
-			double spriteX = sprite[spriteOrder[i]].x - p.x;
-			double spriteY = sprite[spriteOrder[i]].y - p.y;
-			double invDet = 1.0 / (planeX * p.dirY - p.dirX * planeY); //required for correct matrix multiplication
+		sortSprites(spriteOrder,spriteDistance,sprite.size());
+		for(int i = 0; i < sprite.size(); i++) {
+			sprite[spriteOrder[i]].logic(frameTime,p);
+			if(sprite[spriteOrder[i]].texture > -1) {
+				double spriteX = sprite[spriteOrder[i]].x - p.x;
+				double spriteY = sprite[spriteOrder[i]].y - p.y;
+				double invDet = 1.0 / (planeX * p.dirY - p.dirX * planeY); //required for correct matrix multiplication
 
-			double transformX = invDet * (p.dirY * spriteX - p.dirX * spriteY);
-			double transformY = invDet * (-planeY * spriteX + planeX * spriteY); //this is actually the depth inside the screen, that what Z is in 3D
+				double transformX = invDet * (p.dirY * spriteX - p.dirX * spriteY);
+				double transformY = invDet * (-planeY * spriteX + planeX * spriteY); //this is actually the depth inside the screen, that what Z is in 3D
 
-			int spriteScreenX = int((WIDTH / 2) * (1 + transformX / transformY));
+				int spriteScreenX = int((WIDTH / 2) * (1 + transformX / transformY));
 
-			//calculate height of the sprite on screen
-			int spriteHeight = abs(int(HEIGHT / (transformY))); //using 'transformY' instead of the real distance prevents fisheye
-			//calculate lowest and highest pixel to fill in current stripe
-			int drawStartY = -spriteHeight / 2 + HEIGHT / 2;
-			if(drawStartY < 0) drawStartY = 0;
-			int drawEndY = spriteHeight / 2 + HEIGHT / 2;
-			if(drawEndY >= HEIGHT) drawEndY = HEIGHT - 1;
+				//calculate height of the sprite on screen
+				int spriteHeight = abs(int(HEIGHT / (transformY))); //using 'transformY' instead of the real distance prevents fisheye
+				//calculate lowest and highest pixel to fill in current stripe
+				int drawStartY = -spriteHeight / 2 + HEIGHT / 2;
+				if(drawStartY < 0) drawStartY = 0;
+				int drawEndY = spriteHeight / 2 + HEIGHT / 2;
+				if(drawEndY >= HEIGHT) drawEndY = HEIGHT - 1;
 
-			//calculate width of the sprite
-			int spriteWidth = abs( int (HEIGHT / (transformY)));
-			int drawStartX = -spriteWidth / 2 + spriteScreenX;
-			if(drawStartX < 0) drawStartX = 0;
-			int drawEndX = spriteWidth / 2 + spriteScreenX;
-			if(drawEndX >= WIDTH) drawEndX = WIDTH - 1;
+				//calculate width of the sprite
+				int spriteWidth = abs( int (HEIGHT / (transformY)));
+				int drawStartX = -spriteWidth / 2 + spriteScreenX;
+				if(drawStartX < 0) drawStartX = 0;
+				int drawEndX = spriteWidth / 2 + spriteScreenX;
+				if(drawEndX >= WIDTH) drawEndX = WIDTH - 1;
 
-			//loop through every vertical stripe of the sprite on screen
-			for(int stripe = drawStartX; stripe < drawEndX; stripe++)
-			{
-				int texX = int(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * TEXTUREWIDTH / spriteWidth) / 256;
-				//the conditions in the if are:
-				//1) it's in front of camera plane so you don't see things behind you
-				//2) it's on the screen (left)
-				//3) it's on the screen (right)
-				//4) ZBuffer, with perpendicular distance
-				if(transformY > 0 && stripe > 0 && stripe < WIDTH && transformY < zbuf[stripe])
-				for(int y = drawStartY; y < drawEndY; y++) //for every pixel of the current stripe
+				//loop through every vertical stripe of the sprite on screen
+				for(int stripe = drawStartX; stripe < drawEndX; stripe++)
 				{
-				int d = (y) * 256 - HEIGHT * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
-				int texY = ((d * TEXTUREHEIGHT) / spriteHeight) / 256;
+					int texX = int(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * TEXTUREWIDTH / spriteWidth) / 256;
+					//the conditions in the if are:
+					//1) it's in front of camera plane so you don't see things behind you
+					//2) it's on the screen (left)
+					//3) it's on the screen (right)
+					//4) ZBuffer, with perpendicular distance
+					if(transformY > 0 && stripe > 0 && stripe < WIDTH && transformY < zbuf[stripe])
+					for(int y = drawStartY; y < drawEndY; y++) //for every pixel of the current stripe
+					{
+					int d = (y) * 256 - HEIGHT * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
+					int texY = ((d * TEXTUREHEIGHT) / spriteHeight) / 256;
 
-				Uint8 r,g,b;
-				r = textures[sprite[spriteOrder[i]].texture][TEXTUREHEIGHT*(TEXTUREHEIGHT-texY)+texX].r;
-				g = textures[sprite[spriteOrder[i]].texture][TEXTUREHEIGHT*(TEXTUREHEIGHT-texY)+texX].g;
-				b = textures[sprite[spriteOrder[i]].texture][TEXTUREHEIGHT*(TEXTUREHEIGHT-texY)+texX].b;
+					Uint8 r,g,b;
+					r = textures[sprite[spriteOrder[i]].texture][TEXTUREHEIGHT*(TEXTUREHEIGHT-texY)+texX].r;
+					g = textures[sprite[spriteOrder[i]].texture][TEXTUREHEIGHT*(TEXTUREHEIGHT-texY)+texX].g;
+					b = textures[sprite[spriteOrder[i]].texture][TEXTUREHEIGHT*(TEXTUREHEIGHT-texY)+texX].b;
 
-				if(r != 0xff && g != 0 && b != 0xff) {
-					unsigned int* rw = (unsigned int*)((char*)data + pitch * (HEIGHT-y));
-					rw[stripe] = 0x00000000; // 0xRRGGBBAA
-					rw[stripe] += r << 0x18; //
-					rw[stripe] += g << 0x10; //
-					rw[stripe] += b << 0x8;  //
-				}
+					if(r != 0xff && g != 0 && b != 0xff) {
+						unsigned int* rw = (unsigned int*)((char*)data + pitch * (HEIGHT-y));
+						rw[stripe] = 0x00000000; // 0xRRGGBBAA
+						rw[stripe] += r << 0x18; //
+						rw[stripe] += g << 0x10; //
+						rw[stripe] += b << 0x8;  //
+					}
 
 
-				//Uint32 color = texture[sprite[spriteOrder[i]].texture][TEXTUREWIDTH * texY + texX]; //get current color from the texture
-				//if((color & 0x00FFFFFF) != 0) buffer[y][stripe] = color; //paint pixel if it isn't black, black is the invisible color
+					//Uint32 color = texture[sprite[spriteOrder[i]].texture][TEXTUREWIDTH * texY + texX]; //get current color from the texture
+					//if((color & 0x00FFFFFF) != 0) buffer[y][stripe] = color; //paint pixel if it isn't black, black is the invisible color
+					}
+									
 				}
 			}
 
 		}
         SDL_UnlockTexture(pixels);
         SDL_RenderCopy(renderer, pixels, NULL, NULL);
-        SDL_RenderCopy(renderer, hud, NULL, NULL);
 
-		oldTime = time;
-		time = SDL_GetTicks();
-		double frameTime = (time - oldTime) / 1000.0; //frameTime is the time this frame has taken, in seconds
-		std::cout << (1.0 / frameTime) << "\n"; //FPS counter
-		double moveSpeed = frameTime * 5.0; //the constant value is in squares/second
-		double rotSpeed = frameTime * 3.0; //the constant value is in radians/second
-
+		graphics::drawTexture(renderer,gun,96,32,false,std::round(gunframe)*448,0,448,448,1,1);
+        
+		SDL_RenderCopy(renderer, hud, NULL, NULL);
+		FC_Draw(font,renderer,46,424,std::to_string(health).c_str());
+		FC_Draw(font,renderer,560,424,std::to_string(ammo).c_str());
+		if(gunframe != 0 || fire) {
+			gunframe += frameTime*20.0;
+			fire = false;
+		}
+		if(gunframe >= 4) {
+			gunframe = 0;
+		}
 
 		const Uint8* state = SDL_GetKeyboardState(nullptr);
 		if(state[SDL_SCANCODE_UP]) {
@@ -518,6 +571,17 @@ int main() {
 			}
 			if(worldMap[int(p.x)][int(p.y-p.dirY*moveSpeed)] == 0) {
 				p.y -= p.dirY*moveSpeed;
+			}
+		}
+		if(state[SDL_SCANCODE_LCTRL]) {
+			if(!fire && gunframe == 0) {
+				gunframe = 0;
+				fire = true;
+				for(int i = 0; i < sprite.size(); i++) {
+					if((int)p.x == (int)sprite[i].x && (int)p.y == (int)sprite[i].y	&& sprite[i].type == ENEMY) {
+						sprite[i].hit();
+					}
+				}
 			}
 		}
 		if(state[SDL_SCANCODE_RIGHT]) {
