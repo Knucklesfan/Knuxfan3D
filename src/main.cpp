@@ -92,15 +92,15 @@ int ceilingmap[MAPW][MAPH]= //TODO: actually make this load from a file. Should 
 
 std::vector<Sprite> sprite = {
 	{8,8,ENEMY,5},
-	{8,10,DECORATION,5},
-	{0,0,UNDEFINED,5},
-	{0,0,UNDEFINED,5},
-	{0,0,UNDEFINED,5},
-	{0,0,UNDEFINED,5},
-	{0,0,UNDEFINED,5},
-	{0,0,UNDEFINED,5},
-	{0,0,UNDEFINED,5},
-	{0,0,UNDEFINED,5}
+	{8,10,DECORATION,6},
+	{0,0,UNDEFINED,0},
+	{0,0,UNDEFINED,0},
+	{0,0,UNDEFINED,0},
+	{0,0,UNDEFINED,0},
+	{0,0,UNDEFINED,0},
+	{0,0,UNDEFINED,0},
+	{0,0,UNDEFINED,0},
+	{0,0,UNDEFINED,0}
 };
 double zbuf[WIDTH];
 int spriteOrder[SPRITECOUNT];
@@ -108,8 +108,9 @@ double spriteDistance[SPRITECOUNT];
 void sortSprites(int* order, double* dist, int amount);
 double gunframe = 0;
 bool fire = false;
+Uint32 buffer[HEIGHT][WIDTH]; // y-coordinate first because it works per scanline
 
-int main() {
+int main(int argc, char* argv[]) {
 	int health = 100;
 	double meth = 2.01;
 	int ammo = 69;
@@ -118,7 +119,7 @@ int main() {
 	double time = 0; //time of current frame
 	double oldTime = 0; //time of previous frame
 
-	Uint32 buffer[HEIGHT][WIDTH]; // y-coordinate first because it works per scanline
+	std::vector<SDL_Color> textures[24];
 
     if(SDL_Init(SDL_INIT_VIDEO) != 0) {
         std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
@@ -146,7 +147,7 @@ int main() {
     }
 	SDL_Texture* hud = graphics::getSDLTexture("./textures/hud.bmp",renderer);
 	SDL_Texture* gun = graphics::getSDLTexture("./textures/gun.bmp",renderer);
-	std::vector<SDL_Color> textures[24];
+
 	textures[0] = graphics::genTexture("./textures/floor.bmp");
 	textures[1] = graphics::genTexture("./textures/wall.bmp");
 	textures[2] = graphics::genTexture("./textures/door.bmp");
@@ -309,15 +310,14 @@ int main() {
 
 
 				}
+				int texNum = worldMap[mapX][mapY] - 1;
 				if(side == 0) {
 					perpWallDist = (sideDistX - deltaDistX);
 				} 	
 				else{
 					perpWallDist = (sideDistY - deltaDistY);
 				}
-
 				int lineHeight = (int)(HEIGHT / perpWallDist);
-
 				int drawStart = -lineHeight / 2 + HEIGHT / 2;
 				if(drawStart < 0)drawStart = 0;
 				int drawEnd = lineHeight / 2 + HEIGHT / 2;
@@ -326,8 +326,6 @@ int main() {
 
 
 				//start of new texture code
-				int texNum = worldMap[mapX][mapY] -1;
-
 				double wallx;
 				if(side == 0) {
 					wallx = p.y+perpWallDist*raydirY;
@@ -476,7 +474,7 @@ int main() {
 
 		}
 		sortSprites(spriteOrder,spriteDistance,sprite.size());
-		for(int i = 0; i < sprite.size(); i++) {
+		for(int i = 0; i < sprite.size(); i++) { //SPRITE DRAWING
 			sprite[spriteOrder[i]].logic(frameTime,p);
 			if(sprite[spriteOrder[i]].texture > -1) {
 				double spriteX = sprite[spriteOrder[i]].x - p.x;
@@ -518,10 +516,10 @@ int main() {
 					int d = (y) * 256 - HEIGHT * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
 					int texY = ((d * TEXTUREHEIGHT) / spriteHeight) / 256;
 
-					Uint8 r,g,b;
-					r = textures[sprite[spriteOrder[i]].texture][TEXTUREHEIGHT*(TEXTUREHEIGHT-texY)+texX].r;
-					g = textures[sprite[spriteOrder[i]].texture][TEXTUREHEIGHT*(TEXTUREHEIGHT-texY)+texX].g;
-					b = textures[sprite[spriteOrder[i]].texture][TEXTUREHEIGHT*(TEXTUREHEIGHT-texY)+texX].b;
+					Uint8 r=0,g=0,b=0;
+					r = textures[sprite[spriteOrder[i]].texture][(TEXTUREHEIGHT*((TEXTUREHEIGHT - 1) - texY)+texX)].r;
+					g = textures[sprite[spriteOrder[i]].texture][(TEXTUREHEIGHT*((TEXTUREHEIGHT - 1) - texY)+texX)].g;
+					b = textures[sprite[spriteOrder[i]].texture][(TEXTUREHEIGHT*((TEXTUREHEIGHT - 1) - texY)+texX)].b;
 
 					if(r != 0xff && g != 0 && b != 0xff) {
 						unsigned int* rw = (unsigned int*)((char*)data + pitch * (HEIGHT-y));
